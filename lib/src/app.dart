@@ -32,11 +32,10 @@ class MyApp extends StatelessWidget {
 
   Route appRoutes(RouteSettings settings) {
     switch (settings.name) {
-      case '/new_post_screen':
+      case '/product_screen':
         return CupertinoPageRoute(
           builder: (BuildContext context) {
-            //settings.arguments as Map<String, dynamic>
-            return const ProductScreen();
+            return ProductsScreen();
           },
         );
       case '/':
