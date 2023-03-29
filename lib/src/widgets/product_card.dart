@@ -8,7 +8,7 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final int index;
   final Animation<double> animation;
-  final Function(BuildContext context, int) removeItem;
+  final Function(int) removeItem;
 
   const ProductCard({
     Key? key,
@@ -24,22 +24,11 @@ class ProductCard extends StatelessWidget {
       axis: Axis.vertical,
       sizeFactor: animation,
       child: Dismissible(
-          key: Key(product.id.toString()),
-          onDismissed: (_) => removeItem(context, index),
-          child: _renderProduct(),
-          background: Container(
-            color: Colors.red,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Padding(
-                padding: EdgeInsets.only(right: 16),
-                child: Icon(
-                  Icons.delete,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          )),
+          key: UniqueKey(),
+          onDismissed: (_) => removeItem(index),
+          direction: DismissDirection.startToEnd,
+          background: _renderDelete(),
+          child: _renderProduct()),
     );
   }
 
@@ -55,8 +44,27 @@ class ProductCard extends StatelessWidget {
         alignment: Alignment.bottomCenter,
         children: [
           _renderThumbnail(),
+          _renderPriceAndRating(),
           _renderName(),
         ],
+      ),
+    );
+  }
+
+  Widget _renderDelete() {
+    return Container(
+      padding: const EdgeInsets.only(right: 16),
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.red,
+        borderRadius: BorderRadius.circular(8.0),
+      ),
+      child: const Align(
+        alignment: Alignment.center,
+        child: Icon(
+          Icons.delete,
+          color: Colors.white,
+        ),
       ),
     );
   }
@@ -74,7 +82,7 @@ class ProductCard extends StatelessWidget {
         if (loadingProgress == null) {
           return child;
         } else {
-          return const MyLoader();
+          return const SizedBox(height: thumbnailHeight, child: MyLoader());
         }
       },
     );
@@ -82,13 +90,40 @@ class ProductCard extends StatelessWidget {
 
   Widget _renderName() {
     return Container(
-      decoration: const BoxDecoration(gradient: cardGradient),
-      height: 0.3 * thumbnailHeight,
+      decoration: const BoxDecoration(gradient: categoryTitleGradient),
+      height: shadowHeight,
       alignment: Alignment.bottomCenter,
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(10),
       child: Text(
         product.name,
         style: cardNameStyle,
+      ),
+    );
+  }
+
+  Widget _renderPriceAndRating() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        decoration: const BoxDecoration(gradient: categoryStockGradient),
+        height: shadowHeight,
+        alignment: Alignment.topCenter,
+        padding: const EdgeInsets.all(10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Price: ${product.price}\$',
+              style: cardPrice,
+            ),
+            Text(
+              'Rating: ${product.rating}★',
+              style: cardPrice,
+            ),
+          ],
+        ),
       ),
     );
   }

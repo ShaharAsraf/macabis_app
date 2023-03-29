@@ -1,68 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:macabis_app/src/screens/product_mixin.dart';
+import 'package:get_it/get_it.dart';
+import 'package:macabis_app/src/blocs/product_bloc.dart';
 import 'package:macabis_app/src/style/colors.dart';
 import 'package:macabis_app/src/widgets/my_app_bar.dart';
-import 'package:macabis_app/src/widgets/product_card.dart';
-
-import '../blocs/product_bloc/product_bloc_provider.dart';
+import 'package:macabis_app/src/widgets/my_list.dart';
 import '../models/product/product.dart';
 import '../widgets/loading_indicator.dart';
 
-class ProductsScreen extends StatelessWidget with ProductMixin {
-  ProductsScreen({Key? key}) : super(key: key);
-  final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
+class ProductsScreen extends StatelessWidget {
+  const ProductsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final ProductBloc productBloc = GetIt.instance.get<ProductBloc>();
     return Scaffold(
       backgroundColor: scaffoldBackground,
       resizeToAvoidBottomInset: false,
       body: StreamBuilder<List<Product>?>(
-          stream:
-              ProductBlocProvider.of(context).selectedCategoryProductsStream,
+          stream: productBloc.selectedCategoryProductsStream,
           builder: (context, snapshot) {
             if (snapshot.data == null ||
                 snapshot.connectionState == ConnectionState.waiting ||
                 !snapshot.hasData) {
               return const MyLoader();
             }
-            setItems(snapshot.data!);
-            return _renderProducts(getItems);
+            return _renderProducts(snapshot.data!, context, productBloc);
           }),
       appBar: const MyAppBar(),
     );
   }
 
-  Widget _renderProducts(List<Product> products) {
-    return AnimatedList(
-      padding: const EdgeInsets.symmetric(vertical: 60.0, horizontal: 24.0),
-      key: _listKey,
-      shrinkWrap: true,
-      // physics: const NeverScrollableScrollPhysics(),
-      initialItemCount: products.length,
-      itemBuilder:
-          (BuildContext context, int index, Animation<double> animation) =>
-              _buildItem(products[index], index, animation),
-    );
+  Widget _renderProducts(
+      List<Product> products, BuildContext context, ProductBloc productBloc) {
+    return ValueListenableBuilder<SortMethod>(
+        valueListenable: productBloc.sortMethod,
+        builder: (BuildContext context, SortMethod sort, Widget? child) {
+          return MyList(
+            sortedProducts(products, sort),
+          );
+        });
   }
 
-  Widget _buildItem(
-      Product removedItem, int index, Animation<double> animation) {
-    return ProductCard(
-      product: removedItem,
-      index: index,
-      animation: animation,
-      removeItem: _removeItem,
-    );
-  }
-
-  void _removeItem(BuildContext context, int index) {
-    final removedItem = getItems[index];
-    ProductBlocProvider.of(context).removeItemFromCategory(removedItem.id);
-    _listKey.currentState?.removeItem(
-      index,
-      (context, animation) => _buildItem(removedItem, index, animation),
-    );
-    removeItem(index);
+  List<Product> sortedProducts(List<Product> products, SortMethod sort) {
+    switch (sort) {
+      case SortMethod.price:
+        products.sort((a, b) => b.price.compareTo(a.price));
+        break;
+      case SortMethod.rating:
+        products.sort((a, b) => b.rating.compareTo(a.rating));
+        break;
+      case SortMethod.discount:
+        products.sort(
+            (a, b) => b.discountPercentage.compareTo(a.discountPercentage));
+        break;
+    }
+    return products;
   }
 }

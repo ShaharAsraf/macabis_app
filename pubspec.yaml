@@ -39,7 +39,7 @@ dependencies:
   flutter_bloc: ^8.1.2
   injectable: ^2.1.1
   rxdart: ^0.27.7
-  get_it:
+  get_it: ^7.2.0
   http: ^0.13.5
   cached_network_image: ^3.2.3
 
@@ -50,6 +50,8 @@ dev_dependencies:
     sdk: flutter
   json_serializable:
   build_runner:
+  injectable_generator: ^2.1.5
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
