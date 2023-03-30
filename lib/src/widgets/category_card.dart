@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:macabis_app/src/blocs/product_bloc.dart';
 import 'package:macabis_app/src/models/category/category.dart';
 import 'package:macabis_app/src/utils/consts.dart';
 import '../style/colors.dart';
@@ -8,7 +6,7 @@ import 'loading_indicator.dart';
 
 class CategoryCard extends StatelessWidget {
   final ProductCategory category;
-  final Function(BuildContext, ProductCategory, ProductBloc) onTap;
+  final Function(BuildContext, ProductCategory) onTap;
   const CategoryCard({
     Key? key,
     required this.category,
@@ -17,9 +15,8 @@ class CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ProductBloc productBloc = GetIt.instance.get<ProductBloc>();
     return GestureDetector(
-      onTap: () => onTap(context, category, productBloc),
+      onTap: () => onTap(context, category),
       child: Card(
         color: cardColor,
         clipBehavior: Clip.hardEdge,

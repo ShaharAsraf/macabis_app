@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:macabis_app/src/style/colors.dart';
 import 'package:macabis_app/src/utils/consts.dart';
 import '../blocs/product_bloc.dart';
+import '../blocs/product_bloc_provider.dart';
 
 class MyAppBar extends StatelessWidget with PreferredSizeWidget {
   const MyAppBar({Key? key}) : super(key: key);
@@ -14,9 +14,7 @@ class MyAppBar extends StatelessWidget with PreferredSizeWidget {
       actions: [
         PopupMenuButton<SortMethod>(
           itemBuilder: (_) {
-            return SortMethod.values
-                .map((e) => _renderPopupItem(e, context))
-                .toList();
+            return SortMethod.values.map((e) => _renderPopupItem(e, context)).toList();
           },
           icon: const Icon(Icons.sort),
         ),
@@ -27,13 +25,8 @@ class MyAppBar extends StatelessWidget with PreferredSizeWidget {
   @override
   Size get preferredSize => const Size.fromHeight(kAppBarHeight);
 
-  PopupMenuItem<SortMethod> _renderPopupItem(
-      SortMethod method, BuildContext context) {
-    final ProductBloc productBloc = GetIt.instance.get<ProductBloc>();
-
+  PopupMenuItem<SortMethod> _renderPopupItem(SortMethod method, BuildContext context) {
     return PopupMenuItem<SortMethod>(
-        value: method,
-        child: Text(method.name),
-        onTap: () => productBloc.onSortChange(method));
+        value: method, child: Text(method.name), onTap: () => ProductBlocProvider.of(context).onSortChange(method));
   }
 }

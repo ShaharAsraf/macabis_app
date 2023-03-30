@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:macabis_app/src/blocs/product_bloc_provider.dart';
 import 'package:macabis_app/src/screens/main_screen.dart';
 import 'package:macabis_app/src/screens/product_screen.dart';
 import 'package:macabis_app/src/style/scroll_behavior.dart';
@@ -11,18 +12,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      scrollBehavior: AppScrollBehavior(),
-      debugShowCheckedModeBanner: false,
-      title: 'Macabis App',
-      builder: (ctx, widget) {
-        return MediaQuery(
-          data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1),
-          child: widget!,
-        );
-      },
-      onGenerateRoute: appRoutes,
-      navigatorObservers: [routeObserver],
+    return ProductBlocProvider(
+      child: MaterialApp(
+        scrollBehavior: AppScrollBehavior(),
+        debugShowCheckedModeBanner: false,
+        title: 'Macabis App',
+        builder: (ctx, widget) {
+          return MediaQuery(
+            data: MediaQuery.of(ctx).copyWith(textScaleFactor: 1),
+            child: widget!,
+          );
+        },
+        onGenerateRoute: appRoutes,
+        navigatorObservers: [routeObserver],
+      ),
     );
   }
 

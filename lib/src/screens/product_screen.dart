@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:macabis_app/src/blocs/product_bloc.dart';
 import 'package:macabis_app/src/style/colors.dart';
 import 'package:macabis_app/src/widgets/my_app_bar.dart';
 import 'package:macabis_app/src/widgets/my_list.dart';
+import '../blocs/product_bloc_provider.dart';
 import '../models/product/product.dart';
 import '../widgets/loading_indicator.dart';
 
@@ -12,28 +12,24 @@ class ProductsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ProductBloc productBloc = GetIt.instance.get<ProductBloc>();
     return Scaffold(
       backgroundColor: scaffoldBackground,
       resizeToAvoidBottomInset: false,
       body: StreamBuilder<List<Product>?>(
-          stream: productBloc.selectedCategoryProductsStream,
+          stream: ProductBlocProvider.of(context).selectedCategoryProductsStream,
           builder: (context, snapshot) {
-            if (snapshot.data == null ||
-                snapshot.connectionState == ConnectionState.waiting ||
-                !snapshot.hasData) {
+            if (snapshot.data == null || snapshot.connectionState == ConnectionState.waiting || !snapshot.hasData) {
               return const MyLoader();
             }
-            return _renderProducts(snapshot.data!, context, productBloc);
+            return _renderProducts(snapshot.data!, context);
           }),
       appBar: const MyAppBar(),
     );
   }
 
-  Widget _renderProducts(
-      List<Product> products, BuildContext context, ProductBloc productBloc) {
+  Widget _renderProducts(List<Product> products, BuildContext context) {
     return ValueListenableBuilder<SortMethod>(
-        valueListenable: productBloc.sortMethod,
+        valueListenable: ProductBlocProvider.of(context).sortMethod,
         builder: (BuildContext context, SortMethod sort, Widget? child) {
           return MyList(
             sortedProducts(products, sort),
@@ -50,8 +46,7 @@ class ProductsScreen extends StatelessWidget {
         products.sort((a, b) => b.rating.compareTo(a.rating));
         break;
       case SortMethod.discount:
-        products.sort(
-            (a, b) => b.discountPercentage.compareTo(a.discountPercentage));
+        products.sort((a, b) => b.discountPercentage.compareTo(a.discountPercentage));
         break;
     }
     return products;

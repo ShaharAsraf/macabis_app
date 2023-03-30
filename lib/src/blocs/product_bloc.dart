@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:macabis_app/src/blocs/network_bloc.dart';
 import 'package:macabis_app/src/models/category/category.dart';
 import 'package:rxdart/rxdart.dart';
@@ -14,33 +13,15 @@ enum SortMethod {
 }
 
 class ProductBloc implements ProductRepository {
-  // factory ProductBloc() {
-  //   instance ??= ProductBloc._();
-  //   instance?.init();
-  //   return instance!;
-  // }
-  //
-  // ProductBloc._() : super();
-  //
-  // static ProductBloc? instance;
-  ProductBloc() {
-    init();
-  }
   final _products = BehaviorSubject<List<Product>>.seeded([]);
   final _selectedCategoryProducts = BehaviorSubject<List<Product>>.seeded([]);
   final _categories = BehaviorSubject<List<ProductCategory>?>.seeded(null);
+  final NetworkBloc _networkBloc = NetworkBloc();
 
   Stream<List<Product>> get productsStream => _products.stream;
   Stream<List<ProductCategory>?> get categoriesStream => _categories.stream;
-  Stream<List<Product>> get selectedCategoryProductsStream =>
-      _selectedCategoryProducts.stream;
-  ValueNotifier<SortMethod> sortMethod =
-      ValueNotifier<SortMethod>(SortMethod.price);
-
-  Future<void> init() async {
-    await fetchProducts();
-    groupProducts();
-  }
+  Stream<List<Product>> get selectedCategoryProductsStream => _selectedCategoryProducts.stream;
+  ValueNotifier<SortMethod> sortMethod = ValueNotifier<SortMethod>(SortMethod.price);
 
   dispose() {
     _products.close();
@@ -56,9 +37,9 @@ class ProductBloc implements ProductRepository {
 
   @override
   Future<void> fetchProducts() async {
-    final List<Product> products =
-        await GetIt.instance.get<NetworkBloc>().getProducts();
+    final List<Product> products = await _networkBloc.getProducts();
     _products.sink.add(products);
+    groupProducts();
   }
 
   @override
@@ -67,8 +48,7 @@ class ProductBloc implements ProductRepository {
       _categories.sink.add([]);
       return;
     }
-    Map<String, List<Product>> groupedItemsMap =
-        _products.value.groupListsBy((element) => element.category);
+    Map<String, List<Product>> groupedItemsMap = _products.value.groupListsBy((element) => element.category);
     List<ProductCategory> categoriesItems = [];
     groupedItemsMap.forEach((category, itemsList) {
       categoriesItems.add(generateCategory(category, itemsList));
@@ -85,10 +65,8 @@ class ProductBloc implements ProductRepository {
       name: category,
       thumbnail: itemsList.first.thumbnail,
       products: itemsList,
-      totalSum: itemsList.fold(
-          0, (previousValue, element) => previousValue + element.price),
-      totalStock: itemsList.fold(
-          0, (previousValue, element) => previousValue + element.stock),
+      totalSum: itemsList.fold(0, (previousValue, element) => previousValue + element.price),
+      totalStock: itemsList.fold(0, (previousValue, element) => previousValue + element.stock),
     );
   }
 
